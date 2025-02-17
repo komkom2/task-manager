@@ -8,7 +8,10 @@ struct UpdateTaskView: View {
     var body: some View {
         Form {
             TextField("タイトル", text: $task.title)
-            TextField("詳細", text: $task.description)
+            TextField("詳細", text: Binding(
+                get: { task.description ?? "" },  // descriptionがnilなら空文字
+                set: { task.description = $0 }     // 入力された値をdescriptionにセット
+            ))
 
             Toggle(isOn: Binding(
                 get: { task.status == 1 },  // Int (0 or 1) を Bool に変換
@@ -25,8 +28,9 @@ struct UpdateTaskView: View {
     }
     
     func updateTask() {
-        APIService.shared.updateTask(id: task.id, title: task.title, status: task.status == 1) { success in
+        APIService.shared.updateTask(id: task.id, title: task.title, description: task.description ?? "", status: task.status == 1) { success in
             if success {
+                print("タスク更新成功")
                 DispatchQueue.main.async {
                     onUpdate() // 更新後にリストをリロード
                     presentationMode.wrappedValue.dismiss() // 画面を閉じる

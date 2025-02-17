@@ -48,7 +48,13 @@ struct ContentView: View {
     func fetchTasks() {
         APIService.shared.fetchTasks { fetchedTasks in
             DispatchQueue.main.async {
-                self.tasks = fetchedTasks ?? []
+                // 取得したタスクがnilまたは不正な場合でもデフォルト値を設定
+                self.tasks = fetchedTasks?.map { task in
+                    var updatedTask = task
+                    updatedTask.description = task.description ?? ""  // descriptionがnilなら空文字に
+                    updatedTask.status = task.status ?? 0              // statusがnilなら0に
+                    return updatedTask
+                } ?? []
             }
         }
     }

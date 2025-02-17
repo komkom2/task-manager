@@ -3,8 +3,8 @@ import Foundation
 struct Task: Identifiable, Codable {
     var id: Int
     var title: String
-    var description: String
-    var status: Int  // Bool から Int に変更
+    var description: String?
+    var status: Int?  // Bool から Int に変更
     var createdAt: String  // APIから返される日時形式に合わせる
     var updatedAt: String  // APIから返される日時形式に合わせる
 
@@ -15,6 +15,16 @@ struct Task: Identifiable, Codable {
         case status
         case createdAt = "created_at"
         case updatedAt = "updated_at"
+    }
+    
+    // デフォルト値を設定
+    init(id: Int, title: String, description: String? = nil, status: Int? = 0, createdAt: String, updatedAt: String) {
+        self.id = id
+        self.title = title
+        self.description = description ?? ""  // descriptionがnilの場合は空文字に
+        self.status = status ?? 0              // statusがnilの場合は0に
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
     }
 }
 
@@ -95,7 +105,7 @@ class APIService {
     }
 
     // タスクを更新（PUT）
-    func updateTask(id: Int, title: String, status: Bool, completion: @escaping (Bool) -> Void) {
+    func updateTask(id: Int, title: String, description: String,status: Bool, completion: @escaping (Bool) -> Void) {
         guard let url = URL(string: "\(baseURL)/\(id)") else { return }
 
         var request = URLRequest(url: url)
@@ -104,6 +114,7 @@ class APIService {
 
         let body: [String: Any] = [
             "title": title,
+            "description": description,
             "status": status
         ]
 
